@@ -25,6 +25,12 @@ namespace Report_Compare
         public ReportCompare()
         {
             InitializeComponent();
+            CustomInitialization();
+
+        }
+
+        private void CustomInitialization()
+        {
             reportData = new ReportData();
             lblError.Text = "";
             lblResourceSheetFileName.Text = lblInvoiceSummaryFileName.Text = lblAribaMappingFileName.Text = "";
@@ -43,7 +49,6 @@ namespace Report_Compare
             lblError.BackColor = System.Drawing.Color.Red;
             backgroundWorker1.WorkerReportsProgress = true;
             // Start the BackgroundWorker.
-
         }
         #endregion
 
@@ -287,6 +292,11 @@ namespace Report_Compare
                         btnInvoiceSummaryChoose.Visible = false;
                         btnAribaMappingChoose.Visible = false;
                         btnGenerateReport.Visible = false;
+
+                        btnInvoiceSummaryClear.Visible = false;
+                        btnResouceSheetClear.Visible = false;
+                        btnAribaMappingClear.Visible = false;
+                        btnSelectTemplate.Visible = false;
                         lblError.Visible = false;
                         this.progressBar1.Visible = true;
                         backgroundWorker1.RunWorkerAsync();
@@ -297,11 +307,11 @@ namespace Report_Compare
                         {
                             lblError.Text = "Reported generated successfully";
                             lblError.BackColor = System.Drawing.Color.Green;
-                            FileInfo infyReportFileInfo = new FileInfo(reportData.ReportFileName);
+                            FileInfo reportFileInfo = new FileInfo(reportData.ReportDirectory);
 
                             ProcessStartInfo startInfo = new ProcessStartInfo
                             {
-                                Arguments = infyReportFileInfo.DirectoryName + "\\MergeReport",
+                                Arguments = reportFileInfo.DirectoryName,
                                 FileName = "explorer.exe"
                             };
                             Process.Start(startInfo);
@@ -319,6 +329,8 @@ namespace Report_Compare
             }
             catch (Exception ex)
             {
+                InitializeComponent();
+                CustomInitialization();
                 lblError.Text = "Please try again. Error: " + ex.Message;
                 return;
             }
@@ -384,19 +396,20 @@ namespace Report_Compare
         public string InvoiceSummaryFileName { get; set; }
         public string ResouceSheetFileName { get; set; }
         public string AribaMappingFileName { get; set; }
-        public string ReportFileName { get; set; }
+        public List<string> ReportFileName { get; set; }
         public string ReportFileNameTemplate { get; set; }
-
+        public List<List<string>> ResultList { get; set; }
+        public string ReportDirectory { get; private set; }
 
         public bool GenerateReport(ReportData reportData)
         {
             //Microsoft Excel 14 object in references-> COM tab
             try
             {
-                //FileInfo resourceSheetFileInfo = new FileInfo(reportData.ResouceSheetFileName);
 
                 //Create COM Objects. Create a COM object for everything that is referenced
-                List<List<string>> resultList = new List<List<string>>();
+                reportData.ResultList = new List<List<string>>();
+                reportData.ReportFileName = new List<string>();
                 Excel.Application xlApp = new Excel.Application();
 
                 Excel.Workbook invoiceSummarySheetXLWorkbook = xlApp.Workbooks.Open(reportData.InvoiceSummaryFileName, ReadOnly: false);
@@ -409,89 +422,41 @@ namespace Report_Compare
                 Excel.Range resourceSheetXLRange = resourceSheetXLWorksheet.UsedRange.Columns["B:B", Type.Missing];
                 resourceSheetXLRange.Copy(Type.Missing);
 
+                Excel.Workbook aribaSheetXLWorkbook = xlApp.Workbooks.Open(reportData.AribaMappingFileName, ReadOnly: false);
+                Excel._Worksheet aribaDiscountSheetXLWorksheet = aribaSheetXLWorkbook.Sheets[1];
+                Excel.Range aribaDiscountSheetXLRange = aribaDiscountSheetXLWorksheet.UsedRange;
+                aribaDiscountSheetXLRange.Copy(Type.Missing);
+                Excel._Worksheet aribaSuntrustLineSheetXLWorksheet = aribaSheetXLWorkbook.Sheets[2];
+                Excel.Range aribaSuntrustLineXLRange = aribaSuntrustLineSheetXLWorksheet.UsedRange;
+                aribaSuntrustLineXLRange.Copy(Type.Missing);
 
-                //Excel.Workbook aribaSheetXLWorkbook = xlApp.Workbooks.Open(reportData.AribaMappingFileName, ReadOnly: false);
-                //Excel._Worksheet aribaSheetXLWorksheet = aribaSheetXLWorkbook.Sheets[1];
-                //Excel.Range aribaSheetXLRange = aribaSheetXLWorksheet.UsedRange.Columns["B:B", Type.Missing];
-                //resourceSheetXLRange.Copy(Type.Missing);
-
-
-
-                //Excel.Workbook reportTemplateSheetXLWorkbook = xlApp.Workbooks.Open(reportData.AribaMappingFileName, ReadOnly: false);
-                //Excel._Worksheet reportTemplateSheetXLWorksheet = reportTemplateSheetXLWorkbook.Sheets[1];
-
-                //Excel.Range reportTemplateSheetXLRange = reportTemplateSheetXLWorksheet.UsedRange.Columns["B:B", Type.Missing];
-                //resourceSheetXLRange.Copy(Type.Missing);
-
-                //Excel.Range infosysReportXLStatusRange = resourceSheetXLWorksheet.UsedRange.Columns["J:J", Type.Missing];
-                //infosysReportXLStatusRange.PasteSpecial(Excel.XlPasteType.xlPasteFormats);
-                //infosysReportXLStatusRange.Cells[1, 1] = "Invoice ARIBA Status";
-                //infosysReportXLStatusRange.Interior.Color = Excel.XlRgbColor.rgbYellowGreen;
-                //Excel.Range infosysReportXLRemarksRange = resourceSheetXLWorksheet.UsedRange.Columns["K:K", Type.Missing];
-                //infosysReportXLRemarksRange.PasteSpecial(Excel.XlPasteType.xlPasteFormats);
-                //infosysReportXLRemarksRange.Cells[1, 1] = "Report Remarks";
-                //infosysReportXLRemarksRange.Interior.Color = Excel.XlRgbColor.rgbYellowGreen;
-
-
-                int invoiceSummaryRowCount = invoiceSummarySheetXLRange.Rows.Count;
-                //iterate over the rows and columns and print to the console as it appears in the file
                 //excel is not zero based!!
                 //starting form index 2 ignoring header
-                List<string> list = null;
-                for (int invoiceSummaryRow = 2; invoiceSummaryRow <= invoiceSummaryRowCount; invoiceSummaryRow++)
+                object misValue = System.Reflection.Missing.Value;
+                for (int invoiceSummaryRow = 2; invoiceSummaryRow <= invoiceSummarySheetXLRange.Rows.Count; invoiceSummaryRow++)
                 {
-                    list = new List<string>();
-                    var iCount = 0;
-                    if (resourceSheetXLRange.Cells[invoiceSummaryRow, 1] == null || resourceSheetXLRange.Cells[invoiceSummaryRow, 1].Value2 == null || resourceSheetXLRange.Cells[invoiceSummaryRow, 1].Value2.ToString() == string.Empty)
+                    if (invoiceSummarySheetXLRange.Cells[invoiceSummaryRow, 1] == null || invoiceSummarySheetXLRange.Cells[invoiceSummaryRow, 1].Value == null || invoiceSummarySheetXLRange.Cells[invoiceSummaryRow, 1].Value.ToString() == string.Empty)
                     {
                         break;
                     }
-                    string invoiceNumber = invoiceSummarySheetXLRange.Cells[invoiceSummaryRow, 1].Value2.ToString();
+                    string invoiceNumber = invoiceSummarySheetXLRange.Cells[invoiceSummaryRow, 1].Value.ToString();
                     if (!string.IsNullOrEmpty(invoiceNumber))
                     {
-
-                        invoiceNumber = invoiceNumber.Split('.')[0];
-                        var xlRng = invoiceSummarySheetXLWorksheet.get_Range("A" + invoiceSummaryRow, "A" + invoiceSummaryRow).Cells[1, 1].Value2.ToString();
-                        resourceSheetXLRange.AutoFilter(Field: 1, Criteria1: invoiceNumber);
-
-                        //and get only visible cells after the filter.
-                        var invoiceResult = resourceSheetXLRange.SpecialCells(Excel.XlCellType.xlCellTypeVisible, Type.Missing);
-                        if (invoiceResult == null)
-                        {
-                        }
-                        else
-                        {
-                            foreach (Excel.Range row in invoiceResult.Rows)
-                            {
-                                if (iCount++ > 0)
-                                {
-                                    list.Add(invoiceNumber); // Invoice Number -> invoiceID
-                                    list.Add(row.Cells[1, 2].Value2.ToString()); // Billing Date -> invoiceDate
-                                    list.Add(xlRng); //Contract # -> contractNumber
-                                    list.Add(row.Cells[1, 9].Value2.ToString()); // Work Effort -> quantity
-                                    list.Add(row.Cells[1, 11].Value2.ToString()); // Rate -> unitPriceAmount
-                                    list.Add(row.Cells[1, 8].Value2.ToString() + " - " + row.Cells[1, 6].Value2.ToString() + " - " + row.Cells[1, 20].Value + " to " + row.Cells[1, 21].Value);
-                                    list.Add(row.Cells[1, 5].Value2.ToString()); // Employee No -> supplierPartID
-                                    list.Add(row.Cells[1, 19].Value2.ToString()); // Net Amount-> itemSubtotalAmount
-                                }
-
-                            }
-                        }
-
-
+                        var contractID = invoiceSummarySheetXLWorksheet.get_Range("A" + invoiceSummaryRow, "A" + invoiceSummaryRow).Cells[1, 1].Value2.ToString();
+                        ReadResourceList(reportData, resourceSheetXLRange, aribaDiscountSheetXLRange, aribaSuntrustLineXLRange, invoiceNumber, contractID);
                     }
 
                 }
-                //infosysReportXLStatusRange.Columns.AutoFit();
-                //infosysReportXLRemarksRange.Columns.AutoFit();
-
+                if (reportData.ResultList.Count > 0)
+                {
+                    SaveReport(xlApp, reportData);
+                }
 
                 //cleanup
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
 
 
-                object misValue = System.Reflection.Missing.Value;
                 //rule of thumb for releasing com objects:
                 //  never use two dots, all COM objects must be referenced and released individually
                 //  ex: [somthing].[something].[something] is bad
@@ -500,30 +465,17 @@ namespace Report_Compare
 
                 Marshal.ReleaseComObject(invoiceSummarySheetXLRange);
                 Marshal.ReleaseComObject(invoiceSummarySheetXLWorksheet);
-                invoiceSummarySheetXLWorkbook.Close();
-                Marshal.ReleaseComObject(resourceSheetXLWorkbook);
+                Marshal.ReleaseComObject(invoiceSummarySheetXLWorkbook);
 
                 Marshal.ReleaseComObject(resourceSheetXLRange);
                 Marshal.ReleaseComObject(resourceSheetXLWorksheet);
-                resourceSheetXLWorkbook.Close();
                 Marshal.ReleaseComObject(resourceSheetXLWorkbook);
 
-                //close and release
-                DirectoryInfo directoryInfo = null;// new DirectoryInfo(resourceSheetFileInfo.DirectoryName + "\\MergeReport");
-                if (!directoryInfo.Exists)
-                {
-                    directoryInfo.Create();
-                }
-                var fileName = directoryInfo.FullName + "\\MergeReport" + DateTime.Now.ToString("_yyyyMMddHHmmss");
-                // infosysReportXLWorkbook.SaveAs(tee.DirectoryName + "hems1", Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
-                //resourceSheetXLWorkbook.SaveAs(fileName, Excel.XlFileFormat.xlOpenXMLWorkbook, misValue, misValue, false, false, Excel.XlSaveAsAccessMode.xlNoChange, Excel.XlSaveConflictResolution.xlUserResolution, true, misValue, misValue, misValue);
-
-
-                //Marshal.ReleaseComObject(aribaReportXLInvoiceRange);
-                //Marshal.ReleaseComObject(aribaReportXLInvoiceStatusRange);
-                //Marshal.ReleaseComObject(aribaReportXLWorksheet);
-                //aribaReportXLWorkbook.Close(false);
-                //Marshal.ReleaseComObject(aribaReportXLWorkbook);
+                Marshal.ReleaseComObject(aribaDiscountSheetXLRange);
+                Marshal.ReleaseComObject(aribaDiscountSheetXLWorksheet);
+                Marshal.ReleaseComObject(aribaSuntrustLineXLRange);
+                Marshal.ReleaseComObject(aribaSuntrustLineSheetXLWorksheet);
+                Marshal.ReleaseComObject(aribaSheetXLWorkbook);
 
 
                 //quit and release
@@ -534,9 +486,185 @@ namespace Report_Compare
             }
             catch (Exception ex)
             {
-                return false;
+                throw ex;
             }
 
         }
+
+
+        private void ReadResourceList(ReportData reportData, Range resourceSheetXLRange, Range aribaDiscountSheetXLRange, Range aribaSuntrustLineXLRange, string invoiceNumber, string contractID)
+        {
+            try
+            {
+
+                var activityDescription = string.Empty;
+                var lineNumber = string.Empty;
+                for (int resourceRow = 2; resourceRow <= resourceSheetXLRange.Rows.Count; resourceRow++)
+                {
+                    if (resourceSheetXLRange.Cells[resourceRow, 1] == null || resourceSheetXLRange.Cells[resourceRow, 1].Value == null || resourceSheetXLRange.Cells[resourceRow, 1].Value.ToString() == string.Empty)
+                    {
+                        continue;
+                    }
+                    string resourceInvoiceNumber = resourceSheetXLRange.Cells[resourceRow, 1].Value.ToString();
+                    if (invoiceNumber.Equals(resourceInvoiceNumber))
+                    {
+                        var resourceFileReportList = new List<string>();
+                        var discount = string.Empty;
+                        resourceFileReportList.Add(resourceInvoiceNumber); // Invoice Number -> invoiceID
+                        resourceFileReportList.Add(resourceSheetXLRange.get_Range("B" + resourceRow, "B" + resourceRow).Cells[1, 1].Value.ToString());// Billing Date -> invoiceDate
+                        resourceFileReportList.Add(contractID);  //Contract # -> contractNumber
+
+                        resourceFileReportList.Add(resourceSheetXLRange.get_Range("I" + resourceRow, "I" + resourceRow).Cells[1, 1].Value2.ToString()); // Work Effort
+                        resourceFileReportList.Add(resourceSheetXLRange.get_Range("K" + resourceRow, "K" + resourceRow).Cells[1, 1].Value2.ToString()); // Rate
+                        if (!activityDescription.ToLower().Equals(resourceSheetXLRange.get_Range("H" + resourceRow, "H" + resourceRow).Cells[1, 1].Value2.ToString().ToLower()))
+                        {
+                            discount = string.Empty;
+                            lineNumber = string.Empty;
+                            activityDescription = resourceSheetXLRange.get_Range("H" + resourceRow, "H" + resourceRow).Cells[1, 1].Value2.ToString(); // Activity Description
+                            ReadAribaList(reportData, aribaDiscountSheetXLRange, aribaSuntrustLineXLRange, activityDescription, contractID, ref discount, ref lineNumber);
+                        }
+                        resourceFileReportList.Add(lineNumber);
+                        resourceFileReportList.Add(activityDescription);
+                        resourceFileReportList.Add(resourceSheetXLRange.get_Range("F" + resourceRow, "F" + resourceRow).Cells[1, 1].Value2.ToString()); // Employee Name
+                        resourceFileReportList.Add(resourceSheetXLRange.get_Range("T" + resourceRow, "T" + resourceRow).Cells[1, 1].Value.ToString()); // Start Date
+                        resourceFileReportList.Add(resourceSheetXLRange.get_Range("U" + resourceRow, "U" + resourceRow).Cells[1, 1].Value.ToString()); // End Date
+                        resourceFileReportList.Add(resourceSheetXLRange.get_Range("E" + resourceRow, "E" + resourceRow).Cells[1, 1].Value2.ToString()); // Employee No
+                        resourceFileReportList.Add(resourceSheetXLRange.get_Range("P" + resourceRow, "P" + resourceRow).Cells[1, 1].Value2.ToString()); // Amount in USD
+                        reportData.ResultList.Add(resourceFileReportList);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+        private void ReadAribaList(ReportData reportData, Range aribaDiscountSheetXLRange, Range aribaSuntrustLineXLRange, string activityDescription, string contractID, ref string discount, ref string lineNumber)
+        {
+            try
+            {
+
+                for (int aribaRow = 6; aribaRow <= aribaSuntrustLineXLRange.Rows.Count; aribaRow++)
+                {
+                    if (aribaSuntrustLineXLRange.Cells[aribaRow, 2] == null || aribaSuntrustLineXLRange.Cells[aribaRow, 2].Value == null || aribaSuntrustLineXLRange.Cells[aribaRow, 2].Value.ToString() == string.Empty)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        string aribaContractID = aribaSuntrustLineXLRange.Cells[aribaRow, 2].Value.ToString();
+                        if (contractID.Equals(aribaContractID))
+                        {
+                            if (aribaSuntrustLineXLRange.Cells[aribaRow, 4] == null || aribaSuntrustLineXLRange.Cells[aribaRow, 4].Value == null || aribaSuntrustLineXLRange.Cells[aribaRow, 4].Value.ToString() == string.Empty)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                var test = aribaSuntrustLineXLRange.Cells[aribaRow, 4].Value.ToString();
+                                if (activityDescription.ToLower().Equals(aribaSuntrustLineXLRange.Cells[aribaRow, 4].Value.ToString().ToLower()))
+                                {
+                                    lineNumber = aribaSuntrustLineXLRange.Cells[aribaRow, 8].Value.ToString();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                //aribaDiscountSheetXLRange.AutoFilter(3, contractID, Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, false);
+
+                //////and get only visible cells after the filter.
+                //var discountResult = aribaDiscountSheetXLRange.SpecialCells(Excel.XlCellType.xlCellTypeVisible, Type.Missing);
+                //if (discountResult == null)
+                //{
+                //}
+                //else
+                //{
+                //    foreach (Excel.Range row in discountResult.Rows)
+                //    {
+
+                //        if (!string.IsNullOrEmpty(row.Cells[1, 7].Value.ToString()))
+                //        {
+                //            discount = row.Cells[1, 7].Value.ToString();
+                //        }
+                //    }
+                //}
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+
+        }
+        private void SaveReport(Excel.Application xlApp, ReportData reportData)
+        {
+            try
+            {
+                Excel.Workbook reportFileNameTemplateSheetXLWorkbook = xlApp.Workbooks.Open(reportData.ReportFileNameTemplate, ReadOnly: false);
+                Excel._Worksheet reportFileNameTemplateSheetXLWorksheet = reportFileNameTemplateSheetXLWorkbook.Sheets[1];
+                Excel.Range reportFileNameTemplateSheetXLRange = reportFileNameTemplateSheetXLWorksheet.UsedRange;
+                reportFileNameTemplateSheetXLRange.Copy(Type.Missing);
+                object misValue = System.Reflection.Missing.Value;
+                var invoiceLineIDCount = 1;
+                var tempInvoiceID = string.Empty;
+                double subtotalAmount = 0;
+                int reportCellStartIndex = 2;
+                foreach (var list in reportData.ResultList)
+                {
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 1] = list[0]; // a - invoiceID
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 2] = list[1]; // b - invoiceDate
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 3] = list[2]; // c - contractNumber
+                    if (!tempInvoiceID.Equals(list[0]))
+                    {
+                        tempInvoiceID = list[0];
+                        invoiceLineIDCount = 1;
+                        subtotalAmount = 0;
+                    }
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 40] = invoiceLineIDCount++; // an - 41 - invoiceLineID count
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 41] = list[3]; // ao - quantity
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 42] = list[4]; // ap - unitOfMeasure
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 43] = "HOUR"; // aq - unitPriceAmount
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 44] = list[5]; // ar - lineNumber
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 45] = list[6] + " - " + list[7] + " - " + list[8] + " TO " + list[9]; // as - itemDescription
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 46] = list[10]; // at - supplierPartID
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 47] = list[11]; // au - itemSubtotalAmount
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 63] = list[11]; // as - subtotalAmount
+                    subtotalAmount += Convert.ToDouble(list[11]);
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 64] = 0; // as - taxAmount
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 72] = subtotalAmount; // as - subtotalAmount
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex++, 73] = subtotalAmount; // as - subtotalAmount
+
+                }
+                reportFileNameTemplateSheetXLRange.Columns.AutoFit();
+                DirectoryInfo directoryInfo = new DirectoryInfo("D:\\Projects" + "\\Invoice_Report");
+                if (!directoryInfo.Exists)
+                {
+                    directoryInfo.Create();
+                }
+                reportData.ReportDirectory = directoryInfo.FullName;
+                var tempFileName = directoryInfo.FullName + "\\Invoice_Report" + DateTime.Now.ToString("_yyyyMMddHHmmss");
+                reportData.ReportFileName.Add(tempFileName);
+                reportFileNameTemplateSheetXLWorkbook.SaveAs(tempFileName, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                reportFileNameTemplateSheetXLWorkbook.SaveAs(reportData.ReportDirectory, Excel.XlFileFormat.xlCSV, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                Marshal.ReleaseComObject(reportFileNameTemplateSheetXLRange);
+                Marshal.ReleaseComObject(reportFileNameTemplateSheetXLWorksheet);
+                reportFileNameTemplateSheetXLWorkbook.Close(false);
+                Marshal.ReleaseComObject(reportFileNameTemplateSheetXLWorkbook);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+
+
+
     }
 }
