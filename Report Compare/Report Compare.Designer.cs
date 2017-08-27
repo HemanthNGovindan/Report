@@ -29,6 +29,7 @@ namespace Report_Compare
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ReportCompare));
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.lblChooseFiles = new System.Windows.Forms.Label();
@@ -38,7 +39,6 @@ namespace Report_Compare
             this.btnAribaMappingChoose = new System.Windows.Forms.Button();
             this.btnGenerateReport = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.lblError = new System.Windows.Forms.Label();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.lblInvoiceSummaryFileName = new System.Windows.Forms.Label();
             this.lblAribaMappingFileName = new System.Windows.Forms.Label();
@@ -52,9 +52,16 @@ namespace Report_Compare
             this.lblTempltePath = new System.Windows.Forms.Label();
             this.btnSelectTemplate = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.lblError = new System.Windows.Forms.Label();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.nUDReportCount = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
+            this.tableLayoutPanel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nUDReportCount)).BeginInit();
             this.SuspendLayout();
             // 
             // lblChooseFiles
@@ -123,7 +130,7 @@ namespace Report_Compare
             this.btnGenerateReport.BackColor = System.Drawing.Color.White;
             this.btnGenerateReport.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnGenerateReport.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.btnGenerateReport.Location = new System.Drawing.Point(153, 292);
+            this.btnGenerateReport.Location = new System.Drawing.Point(153, 333);
             this.btnGenerateReport.Name = "btnGenerateReport";
             this.btnGenerateReport.Size = new System.Drawing.Size(215, 23);
             this.btnGenerateReport.TabIndex = 5;
@@ -135,26 +142,14 @@ namespace Report_Compare
             // 
             this.progressBar1.BackColor = System.Drawing.Color.Gainsboro;
             this.progressBar1.ForeColor = System.Drawing.Color.LimeGreen;
-            this.progressBar1.Location = new System.Drawing.Point(153, 319);
+            this.progressBar1.Location = new System.Drawing.Point(153, 360);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(215, 23);
-            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.progressBar1.Step = 1;
+            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.progressBar1.TabIndex = 1;
             this.progressBar1.UseWaitCursor = true;
             this.progressBar1.Visible = false;
-            // 
-            // lblError
-            // 
-            this.lblError.AutoSize = true;
-            this.lblError.BackColor = System.Drawing.Color.Red;
-            this.lblError.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblError.ForeColor = System.Drawing.Color.Black;
-            this.lblError.Location = new System.Drawing.Point(3, 0);
-            this.lblError.Name = "lblError";
-            this.lblError.Size = new System.Drawing.Size(47, 15);
-            this.lblError.TabIndex = 7;
-            this.lblError.Text = "lblError";
-            this.lblError.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // backgroundWorker1
             // 
@@ -289,24 +284,92 @@ namespace Report_Compare
             this.tableLayoutPanel1.Size = new System.Drawing.Size(434, 32);
             this.tableLayoutPanel1.TabIndex = 14;
             // 
+            // lblError
+            // 
+            this.lblError.AutoSize = true;
+            this.lblError.BackColor = System.Drawing.Color.Red;
+            this.lblError.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblError.ForeColor = System.Drawing.Color.Black;
+            this.lblError.Location = new System.Drawing.Point(3, 0);
+            this.lblError.Name = "lblError";
+            this.lblError.Size = new System.Drawing.Size(47, 15);
+            this.lblError.TabIndex = 7;
+            this.lblError.Text = "lblError";
+            this.lblError.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.ColumnCount = 1;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.Controls.Add(this.lblError, 0, 0);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(66, 261);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(34, 298);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(386, 25);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(434, 29);
             this.tableLayoutPanel2.TabIndex = 15;
+            // 
+            // tableLayoutPanel3
+            // 
+            this.tableLayoutPanel3.ColumnCount = 2;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 62F));
+            this.tableLayoutPanel3.Controls.Add(this.nUDReportCount, 1, 0);
+            this.tableLayoutPanel3.Controls.Add(this.label1, 0, 0);
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(34, 262);
+            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+            this.tableLayoutPanel3.RowCount = 1;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(434, 30);
+            this.tableLayoutPanel3.TabIndex = 16;
+            // 
+            // nUDReportCount
+            // 
+            this.nUDReportCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.nUDReportCount.Location = new System.Drawing.Point(375, 3);
+            this.nUDReportCount.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.nUDReportCount.Minimum = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            this.nUDReportCount.Name = "nUDReportCount";
+            this.nUDReportCount.Size = new System.Drawing.Size(56, 20);
+            this.nUDReportCount.TabIndex = 17;
+            this.nUDReportCount.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.Color.White;
+            this.label1.Location = new System.Drawing.Point(3, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(142, 15);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Number of rows in report";
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // ReportCompare
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.ClientSize = new System.Drawing.Size(539, 356);
+            this.ClientSize = new System.Drawing.Size(539, 424);
+            this.Controls.Add(this.tableLayoutPanel3);
             this.Controls.Add(this.tableLayoutPanel2);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.btnAribaMappingClear);
@@ -334,6 +397,9 @@ namespace Report_Compare
             this.tableLayoutPanel1.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
+            this.tableLayoutPanel3.ResumeLayout(false);
+            this.tableLayoutPanel3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nUDReportCount)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -349,7 +415,6 @@ namespace Report_Compare
         private System.Windows.Forms.Button btnAribaMappingChoose;
         private System.Windows.Forms.Button btnGenerateReport;
         private System.Windows.Forms.ProgressBar progressBar1;
-        private System.Windows.Forms.Label lblError;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.Label lblInvoiceSummaryFileName;
         private System.Windows.Forms.Label lblAribaMappingFileName;
@@ -363,7 +428,12 @@ namespace Report_Compare
         private System.Windows.Forms.Label lblTempltePath;
         private System.Windows.Forms.Button btnSelectTemplate;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label lblError;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.NumericUpDown nUDReportCount;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
