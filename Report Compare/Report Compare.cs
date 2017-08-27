@@ -56,6 +56,9 @@ namespace Report_Compare
         #region Choosing Files
         private void btnResouceSheetChoose_Click(object sender, EventArgs e)
         {
+            string date = "5/31/2017 0:00";
+            date.Split('/');
+            date = date.Split('/')[0] + date.Split('/')[1] + date.Split('/')[2].Substring(0, 4);
             lblError.Text = "";
             lblError.BackColor = System.Drawing.Color.Red;
             DialogResult result = openFileDialog.ShowDialog(); // Show the dialog.
@@ -301,6 +304,8 @@ namespace Report_Compare
                         lblError.Visible = false;
                         this.progressBar1.Visible = true;
                         //backgroundWorker1.RunWorkerAsync();
+                        timer1.Enabled = true;
+                        timer1.Start();
                         var result = reportData.GenerateReport(reportData);
                         this.Text = "Report Compare";
 
@@ -311,7 +316,6 @@ namespace Report_Compare
                             lblError.Text = "Reported generated successfully";
                             lblError.BackColor = System.Drawing.Color.Green;
                             lblError.ForeColor = System.Drawing.Color.White;
-
                             FileInfo reportFileInfo = new FileInfo(reportData.ReportDirectory);
 
                             ProcessStartInfo startInfo = new ProcessStartInfo
@@ -320,13 +324,18 @@ namespace Report_Compare
                                 FileName = "explorer.exe"
                             };
                             Process.Start(startInfo);
-                         ;
+                            timer1.Enabled = false;
+                            timer1.Stop();
                             return;
                         }
                     }
 
                     else
                     {
+                        InitializeComponent();
+                        CustomInitialization();
+                        timer1.Enabled = false;
+                        timer1.Stop();
                         lblError.Text = "Please choose valid files.";
                         return;
                     }
@@ -338,6 +347,8 @@ namespace Report_Compare
                 InitializeComponent();
                 CustomInitialization();
                 lblError.Text = "Please try again. Error: " + ex.Message;
+                timer1.Enabled = false;
+                timer1.Stop();
                 return;
             }
 
@@ -524,8 +535,8 @@ namespace Report_Compare
                         var resourceFileReportList = new List<string>();
                         var discount = string.Empty;
                         resourceFileReportList.Add(resourceInvoiceNumber); // Invoice Number -> invoiceID
-                        var tempDate= new DateTime(resourceSheetXLRange.get_Range("B" + resourceRow, "B" + resourceRow).Cells[1, 1].Value.ToString());
-                        resourceFileReportList.Add(tempDate.ToString("dd/M/yyyy"));// Billing Date -> invoiceDate
+                        var tempDate = resourceSheetXLRange.get_Range("B" + resourceRow, "B" + resourceRow).Cells[1, 1].Value.ToString();
+                        resourceFileReportList.Add(tempDate.Split('/')[0] + '/' + tempDate.Split('/')[1] + '/' + tempDate.Split('/')[2].Substring(0, 4));// Billing Date -> invoiceDate
                         resourceFileReportList.Add(contractID);  //Contract # -> contractNumber
 
                         resourceFileReportList.Add(resourceSheetXLRange.get_Range("I" + resourceRow, "I" + resourceRow).Cells[1, 1].Value2.ToString()); // Work Effort
@@ -540,10 +551,10 @@ namespace Report_Compare
                         resourceFileReportList.Add(lineNumber);
                         resourceFileReportList.Add(activityDescription);
                         resourceFileReportList.Add(resourceSheetXLRange.get_Range("F" + resourceRow, "F" + resourceRow).Cells[1, 1].Value2.ToString()); // Employee Name
-                        tempDate= new DateTime(resourceSheetXLRange.get_Range("T" + resourceRow, "T" + resourceRow).Cells[1, 1].Value.ToString());
-                        resourceFileReportList.Add(tempDate.ToString("dd/M/yyyy")); // Start Date
-                        tempDate= new DateTime(resourceSheetXLRange.get_Range("U" + resourceRow, "U" + resourceRow).Cells[1, 1].Value.ToString());
-                        resourceFileReportList.Add(tempDate.ToString("dd/M/yyyy")); // End Date
+                        tempDate = resourceSheetXLRange.get_Range("T" + resourceRow, "T" + resourceRow).Cells[1, 1].Value.ToString();
+                        resourceFileReportList.Add(tempDate.Split('/')[0] + '/' + tempDate.Split('/')[1] + '/' + tempDate.Split('/')[2].Substring(0, 4));// Start Date
+                        tempDate = resourceSheetXLRange.get_Range("U" + resourceRow, "U" + resourceRow).Cells[1, 1].Value.ToString();
+                        resourceFileReportList.Add(tempDate.Split('/')[0] + '/' + tempDate.Split('/')[1] + '/' + tempDate.Split('/')[2].Substring(0, 4)); // End Date
                         resourceFileReportList.Add(resourceSheetXLRange.get_Range("E" + resourceRow, "E" + resourceRow).Cells[1, 1].Value2.ToString()); // Employee No
                         resourceFileReportList.Add(resourceSheetXLRange.get_Range("P" + resourceRow, "P" + resourceRow).Cells[1, 1].Value2.ToString()); // Amount in USD
                         reportData.ResultList.Add(resourceFileReportList);

@@ -146,7 +146,7 @@ namespace Report_Compare
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(215, 23);
             this.progressBar1.Step = 1;
-            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar1.TabIndex = 1;
             this.progressBar1.UseWaitCursor = true;
             this.progressBar1.Visible = false;
@@ -289,7 +289,7 @@ namespace Report_Compare
             this.lblError.AutoSize = true;
             this.lblError.BackColor = System.Drawing.Color.Red;
             this.lblError.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblError.ForeColor = System.Drawing.Color.Black;
+            this.lblError.ForeColor = System.Drawing.Color.White;
             this.lblError.Location = new System.Drawing.Point(3, 0);
             this.lblError.Name = "lblError";
             this.lblError.Size = new System.Drawing.Size(47, 15);
@@ -360,6 +360,7 @@ namespace Report_Compare
             // 
             // timer1
             // 
+            this.timer1.Enabled = true;
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
