@@ -313,6 +313,8 @@ namespace Report_Compare
                             lblError.Text = "Reported generated successfully";
                             lblError.BackColor = System.Drawing.Color.Green;
                             lblError.ForeColor = System.Drawing.Color.White;
+                            lblError.Visible = true;
+                            progressBar1.Visible = false;
                             FileInfo reportFileInfo = new FileInfo(reportData.ReportDirectory);
 
                             ProcessStartInfo startInfo = new ProcessStartInfo
@@ -334,6 +336,7 @@ namespace Report_Compare
                         timer1.Enabled = false;
                         timer1.Stop();
                         lblError.Text = "Please choose valid files.";
+                        lblError.Visible = true;
                         return;
                     }
                 }
@@ -344,6 +347,7 @@ namespace Report_Compare
                 InitializeComponent();
                 CustomInitialization();
                 lblError.Text = "Please try again. Error: " + ex.Message;
+                lblError.Visible = true;
                 timer1.Enabled = false;
                 timer1.Stop();
                 return;
