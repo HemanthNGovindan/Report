@@ -56,9 +56,6 @@ namespace Report_Compare
         #region Choosing Files
         private void btnResouceSheetChoose_Click(object sender, EventArgs e)
         {
-            string date = "5/31/2017 0:00";
-            date.Split('/');
-            date = date.Split('/')[0] + date.Split('/')[1] + date.Split('/')[2].Substring(0, 4);
             lblError.Text = "";
             lblError.BackColor = System.Drawing.Color.Red;
             DialogResult result = openFileDialog.ShowDialog(); // Show the dialog.
@@ -655,7 +652,11 @@ namespace Report_Compare
                     {
                         reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, iCount] = reportFileNameTemplateSheetXLRange.Cells[2, iCount]; // d - ag
                     }
-                    if (!tempInvoiceID.Equals(list[0]))
+                    if (tempInvoiceID.Equals(list[0]))
+                    {
+                        invoiceLineIDCount++;
+                    }
+                    else
                     {
                         tempInvoiceID = list[0];
                         if (invoiceLineIDCount > 1)
@@ -672,7 +673,7 @@ namespace Report_Compare
                         subtotalAmount = 0;
 
                     }
-                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 40] = invoiceLineIDCount++; // an - 41 - invoiceLineID count
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 40] = invoiceLineIDCount; // an - 41 - invoiceLineID count
                     reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 41] = list[3]; // ao - quantity
                     reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 42] = list[4]; // ap - unitOfMeasure
                     reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 43] = "HUR"; // aq - unitPriceAmount
@@ -680,15 +681,16 @@ namespace Report_Compare
                     reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 45] = list[6] + " - " + list[7] + " - " + list[8] + " TO " + list[9]; // as - itemDescription
                     reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 46] = list[10]; // at - supplierPartID
                     reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 47] = list[11]; // au - itemSubtotalAmount
-                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 63] = list[11]; // as - subtotalAmount
                     subtotalAmount += Convert.ToDouble(list[11]);
+                    reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 63] = subtotalAmount; // as - subtotalAmount
                     reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 64] = 0; // as - taxAmount
                     reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex, 72] = subtotalAmount; // as - subtotalAmount
                     reportFileNameTemplateSheetXLRange.Cells[reportCellStartIndex++, 73] = subtotalAmount; // as - subtotalAmount
 
                 }
                 reportFileNameTemplateSheetXLRange.Columns.AutoFit();
-                DirectoryInfo directoryInfo = new DirectoryInfo("D:\\Projects" + "\\Invoice_Report");
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "Invoice_Report");
+                DirectoryInfo directoryInfo = new DirectoryInfo(path);
                 if (!directoryInfo.Exists)
                 {
                     directoryInfo.Create();

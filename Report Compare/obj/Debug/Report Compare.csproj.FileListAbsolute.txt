@@ -10,6 +10,7 @@ F:\Hemanth\Learn\Report Compare\Report Compare\obj\Debug\Report Compare.pdb
 D:\Projects\Git\Report\Report Compare\bin\Debug\Report Compare.exe.config
 D:\Projects\Git\Report\Report Compare\bin\Debug\Report Compare.exe
 D:\Projects\Git\Report\Report Compare\bin\Debug\Report Compare.pdb
+D:\Projects\Git\Report\Report Compare\obj\Debug\Report Compare.csprojResolveAssemblyReference.cache
 D:\Projects\Git\Report\Report Compare\obj\Debug\Report Compare.csproj.ResolveComReference.cache
 D:\Projects\Git\Report\Report Compare\obj\Debug\Report_Compare.ReportCompare.resources
 D:\Projects\Git\Report\Report Compare\obj\Debug\Report_Compare.Properties.Resources.resources
